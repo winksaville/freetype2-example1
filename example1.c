@@ -12,8 +12,11 @@
 #include FT_FREETYPE_H
 
 
-#define WIDTH   640
-#define HEIGHT  480
+#define PTS 20        // 20 "points" for character size 20/64 of inch
+#define DPI 100       // dots per inch
+
+#define WIDTH   100   // dots (1 inch wide at 100 DPI)
+#define HEIGHT  75    // dots (
 
 
 /* origin is the upper left corner */
@@ -79,6 +82,7 @@ main( int     argc,
   FT_Error      error;
 
   char*         filename;
+  char*         rot;
   char*         text;
 
   double        angle;
@@ -86,16 +90,17 @@ main( int     argc,
   int           n, num_chars;
 
 
-  if ( argc != 3 )
+  if ( argc != 4 )
   {
-    fprintf ( stderr, "usage: %s font sample-text\n", argv[0] );
+    fprintf ( stderr, "usage: %s font angle sample-text\n", argv[0] );
     exit( 1 );
   }
 
   filename      = argv[1];                           /* first argument     */
-  text          = argv[2];                           /* second argument    */
+  rot           = argv[2];                           /* second argument    */
+  text          = argv[3];                           /* third argument     */
   num_chars     = strlen( text );
-  angle         = ( 25.0 / 360 ) * 3.14159 * 2;      /* use 25 degrees     */
+  angle         = ( atof(rot) / 360 ) * 3.14159 * 2; /* angle in radians   */
   target_height = HEIGHT;
 
   error = FT_Init_FreeType( &library );              /* initialize library */
@@ -104,9 +109,9 @@ main( int     argc,
   error = FT_New_Face( library, filename, 0, &face );/* create face object */
   /* error handling omitted */
 
-  /* use 50pt at 100dpi */
-  error = FT_Set_Char_Size( face, 50 * 64, 0,
-                            100, 0 );                /* set character size */
+  /* use PTS is height of characters in 1/64 of inch, DPI is dots per inch */
+  error = FT_Set_Char_Size( face, PTS * 64, 0,
+                            DPI, 0 );                /* set character size */
   /* error handling omitted */
 
   /* cmap selection omitted;                                        */
@@ -120,10 +125,8 @@ main( int     argc,
   matrix.yx = (FT_Fixed)( sin( angle ) * 0x10000L );
   matrix.yy = (FT_Fixed)( cos( angle ) * 0x10000L );
 
-  /* the pen position in 26.6 cartesian space coordinates; */
-  /* start at (300,200) relative to the upper left corner  */
-  pen.x = 300 * 64;
-  pen.y = ( target_height - 200 ) * 64;
+  pen.x = 10 * 64; // x at 10 points from left
+  pen.y = 10 * 64; // y at 10 points from bottom
 
   for ( n = 0; n < num_chars; n++ )
   {
