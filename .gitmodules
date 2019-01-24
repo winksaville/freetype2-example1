@@ -1,0 +1,3 @@
+[submodule "modules/3d-test-resources"]
+	path = modules/3d-test-resources
+	url = git@github.com:winksaville/3d-test-resources
